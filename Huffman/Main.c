@@ -1,15 +1,4 @@
-#include "Hash.h"
-#include "Heap.h"
-#include "huffmantree.h"
-void print_pre(huffmanTree * ht)
-{
-	if(ht!=NULL)
-	{
-		printf("(%x)",*(char*)ht->byte);
-		print_pre(ht->left);
-		print_pre(ht->right);
-	}
-}
+#include "Compress.h"
 int main()
 {
 	hash_table * ht = create_hash();
@@ -27,7 +16,6 @@ int main()
 		if(!feof(entrada))
 		{
 			file_size++;
-		printf("(%x)",byte);
 		put(ht,&byte);
 		}
 	}
@@ -42,7 +30,35 @@ int main()
 		}
 	}
 	huffmanTree * arvore = createHTfromHEAP(heap);
+	Comp_HT* nometemp = create_Comp_HT();
 	printHTinFile(arvore,saida);
+	rewind(entrada);
+	set(arvore,nometemp,0,0);
+	unsigned char Final_Byte =0;
+	unsigned char bits;
+	short bits_not_shifted =8;
+	short bits_number;
+	while(!feof(entrada)) 	{
+		byte = fgetc(entrada);
+		bits_number = nometemp->table[byte]->number_of_bits;
+		bits = nometemp->table[byte]->byte;
+		if(bits_not_shifted==0)  {
+			fputc(Final_Byte,saida);
+			bits_not_shifted = 8;
+			Final_Byte = 0;
+		}
+		else if(bits_not_shifted>=bits) {
+			bits_not_shifted -=bits_number;
+			Final_Byte |= (bits<<(bits_not_shifted));
+		}
+		else  {
+
+			fputc(Final_Byte,saida);
+				bits_not_shifted = 8;
+				Final_Byte = 0;
+		}
+
+	}
 	fclose(entrada);
 	fclose(saida);
 	//fim da compressao

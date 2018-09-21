@@ -133,7 +133,8 @@ huffmanTree* createHTfromHEAP(Heap *heap){
 		//retira os nós da heap.
 		a = dequeue(heap);
 		b = dequeue(heap);
-
+		//comentaro a seguir: caso a arvore nao esteja sendo feita corretamente descomente-o
+		//if((*(unsigned char*) b->byte)=='*'&&(*(unsigned char*)a->byte)!='*') swap(a,b);
 		//cria nó com as frequencias somadas e seu char será
 		//'*'(ou '\', ainda falta implementar) que é nosso caractere de apoio
 		unsigned char multiplicacion = '*';

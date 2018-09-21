@@ -16,7 +16,6 @@ element * create_element(void * data,size_t data_size)
 	element * newelement = (element *)malloc(sizeof(element));
 	newelement->elemento = malloc(data_size);
 	*(unsigned char*)(newelement->elemento) = *(unsigned char*)data;
-	printf("%x\n",*(char*)data);
 	newelement->frequency =1;
 	return newelement;
 }
@@ -30,7 +29,6 @@ void put(hash_table * ht,void * data)
 	}
 	else
 	{
-		printf("%c\n\n",*(char*)data);
 		ht->table[key]=create_element(data,sizeof(unsigned char));
 	}
 }

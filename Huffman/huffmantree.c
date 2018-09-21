@@ -115,7 +115,6 @@ void printHTinFile (huffmanTree *ht,FILE *new){
 		printHTinFile(ht->left, new);
 		printHTinFile(ht->right, new);
 	}
-	
 }
 
 /*FunÃ§Ã£o que libera os nÃ³s da Ã¡rvore de forma recursiva
