@@ -1,18 +1,31 @@
 #include "Compress.h"
+int get_dot(char * s)
+{
+	int i,tam = strlen(s);
+	for(i=0;i<tam;i++)
+	{
+		if(s[i]=='.') return i;
+	}
+	return -1;
+}
 int main()
 {
 	hash_table * ht = create_hash();
-	char name[100];
+	char name[100],exit[100];
 	unsigned char byte;
 	//inicio da compressao
 	printf("Type your file name\n");
 	gets(name);
+	short dot = get_dot(name);
+	for(int i=0;i<dot;i++) exit[i] = name[i];
+	strcat(exit,".huff");
 	FILE *entrada,*saida;
 	entrada = fopen(name,"rb");
-	saida = fopen("saida.huff","wb");
+	saida = fopen(exit,"wb");
 	int file_size=0;
 	while(!feof(entrada)) {
 		byte = fgetc(entrada);
+		if(byte=='*') byte = '/';
 		if(!feof(entrada))
 		{
 		//	printf("%c",byte);
@@ -42,6 +55,7 @@ int main()
 	i=0;
 	while(!feof(entrada)&&i<file_size) 	{
 		byte = fgetc(entrada);
+		if(byte =='*') byte = '/';
 		bits_number = nometemp->table[byte]->number_of_bits;
 		bits = *(unsigned char*)nometemp->table[byte]->byte;
 		if(bits_not_shifted==0)  {
@@ -54,7 +68,7 @@ int main()
 				Final_Byte |= (bits<<(bits_not_shifted));
 			}
 		else  {
-
+			Final_Byte |= (bits>>(bits_number-bits_not_shifted));
 			fputc(Final_Byte,saida);
 			bits_not_shifted = 8-(bits_number-bits_not_shifted);
 			Final_Byte = 0;
@@ -62,11 +76,13 @@ int main()
 		}
 		i++;
 	}
+	fputc(Final_Byte,saida);
 	int trash = bits_not_shifted;
 	rewind(saida);
 	unsigned char *cabecalho;
 	cabecalho = Create_header(trash,arvore->size);
 	fprintf(saida,"%s",cabecalho);
+	puts("Real end");
 	fclose(entrada);
 	fclose(saida);
 	//fim da compressao
