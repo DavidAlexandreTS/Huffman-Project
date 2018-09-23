@@ -9,17 +9,17 @@ int main()
 	gets(name);
 	FILE *entrada,*saida;
 	entrada = fopen(name,"rb");
-	saida = fopen("saida.txt","wb");
+	saida = fopen("saida.huff","wb");
 	int file_size=0;
 	while(!feof(entrada)) {
 		byte = fgetc(entrada);
 		if(!feof(entrada))
 		{
+		//	printf("%c",byte);
 			file_size++;
 		put(ht,&byte);
 		}
 	}
-	puts("end");
 	Heap *heap = create_heap();
 	int i;
 	huffmanTree * new_node;
@@ -34,31 +34,39 @@ int main()
 	printHTinFile(arvore,saida);
 	rewind(entrada);
 	set(arvore,nometemp,0,0);
+	puts("\nend");
 	unsigned char Final_Byte =0;
 	unsigned char bits;
 	short bits_not_shifted =8;
 	short bits_number;
-	while(!feof(entrada)) 	{
+	i=0;
+	while(!feof(entrada)&&i<file_size) 	{
 		byte = fgetc(entrada);
 		bits_number = nometemp->table[byte]->number_of_bits;
-		bits = nometemp->table[byte]->byte;
+		bits = *(unsigned char*)nometemp->table[byte]->byte;
 		if(bits_not_shifted==0)  {
 			fputc(Final_Byte,saida);
 			bits_not_shifted = 8;
 			Final_Byte = 0;
 		}
-		else if(bits_not_shifted>=bits) {
-			bits_not_shifted -=bits_number;
-			Final_Byte |= (bits<<(bits_not_shifted));
-		}
+		if(bits_not_shifted>=bits_number) {
+				bits_not_shifted = bits_not_shifted - bits_number;
+				Final_Byte |= (bits<<(bits_not_shifted));
+			}
 		else  {
 
 			fputc(Final_Byte,saida);
-				bits_not_shifted = 8;
-				Final_Byte = 0;
+			bits_not_shifted = 8-(bits_number-bits_not_shifted);
+			Final_Byte = 0;
+			Final_Byte|= (bits<<bits_not_shifted);
 		}
-
+		i++;
 	}
+	int trash = bits_not_shifted;
+	rewind(saida);
+	unsigned char *cabecalho;
+	cabecalho = Create_header(trash,arvore->size);
+	fprintf(saida,"%s",cabecalho);
 	fclose(entrada);
 	fclose(saida);
 	//fim da compressao

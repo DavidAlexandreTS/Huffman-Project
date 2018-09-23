@@ -111,7 +111,7 @@ void printNODE(huffmanTree *ht){
  */
 void printHTinFile (huffmanTree *ht,FILE *new){
 	if (!isHTempty(ht)){
-		fprintf(new,"(%c)",*(char *)ht->byte);
+		fprintf(new,"%c",*(char *)ht->byte);
 		printHTinFile(ht->left, new);
 		printHTinFile(ht->right, new);
 	}

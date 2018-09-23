@@ -128,7 +128,7 @@ void * dequeue(Heap *hipi)
 }
 huffmanTree* createHTfromHEAP(Heap *heap){
 	huffmanTree *a,*b,*aux;
-
+	int i=0;
 	while(heap->size!=1) {
 		//retira os nós da heap.
 		a = dequeue(heap);
@@ -141,6 +141,9 @@ huffmanTree* createHTfromHEAP(Heap *heap){
 		aux = createTREE(&multiplicacion, a->frequency + b->frequency, a, b);
 		//coloca nossa arvore de volta na heap
 		enqueue(heap,aux);
+		i++;
 	}
-	return dequeue(heap);
+	aux = dequeue(heap);
+	aux->size = i;
+	return aux;
 }

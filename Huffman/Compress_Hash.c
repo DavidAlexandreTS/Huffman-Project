@@ -11,9 +11,12 @@ Comp_HT* create_Comp_HT()
 	return new_ht;
 }
 
-void put2(Comp_HT * ht,char byte ,int number)
+
+void put2(Comp_HT * ht,void *byte ,int number,void * chave)
 {
-	int key = byte%MAX_HASH_SIZE;
-	ht->table[key]->byte = byte;
+	int key = (*(unsigned char*)chave)%MAX_HASH_SIZE;
+	ht->table[key] = (Comp_element *)malloc(sizeof(Comp_element));
+	ht->table[key]->byte = malloc(sizeof(unsigned char));
+	*(unsigned char*)ht->table[key]->byte = *(unsigned char*)byte;
 	ht->table[key]->number_of_bits = number;
 }

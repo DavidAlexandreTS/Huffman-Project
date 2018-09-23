@@ -9,6 +9,7 @@ typedef struct _HUFFMANTREE huffmanTree;
 struct _HUFFMANTREE{
 	void *byte;
 	long long int frequency;
+	int size;
 	huffmanTree *left;
 	huffmanTree *right;
 };
