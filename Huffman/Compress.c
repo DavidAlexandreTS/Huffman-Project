@@ -22,11 +22,28 @@ void set(huffmanTree * bt,Comp_HT* ht,int height,unsigned int byte)
 {
 	if(bt!=NULL)
 	{
-		if(isLeaf(bt)) put2(ht,&byte,height,bt->byte);
+		if(isLeaf(bt)){
+			if(*(unsigned char *)bt->byte=='*'||*(unsigned char *)bt->byte==92){
+				byte = byte>>1;
+				height--;
+			}
+		 put2(ht,&byte,height,bt->byte);
+		}
 		 set(bt->left,ht,height+1,byte<<1);
 		 set(bt->right,ht,height+1,(byte<<1)+1);
 	}
 
+}
+void par(huffmanTree * bt)
+{
+	printf("(");
+	if(bt!=NULL)
+	{
+		printf("%c",*(unsigned char *)getBYTE(bt));
+		par(bt->left);
+		par(bt->right);
+	}
+	printf(")");
 }
 void compress(char * name)
 {
@@ -35,6 +52,14 @@ void compress(char * name)
 	char exit[100];
 	int i;
 	short tam = strlen(name);
+		printf("%s\n",exit);
+	FILE *entrada,*saida;
+	entrada = fopen(name,"rb");
+	while(entrada==NULL){
+		puts("Invalid name\nType other");
+		gets(name);
+		entrada = fopen(name,"rb");
+	}
 	for(i=0;i<tam;i++) exit[i] = name[i];
 	exit[i]='.';
 	exit[i+1] = 'h';
@@ -43,8 +68,6 @@ void compress(char * name)
 	exit[i+4] = 'f';
 	exit[i+5] = '\0';
 	printf("%s\n",exit);
-	FILE *entrada,*saida;
-	entrada = fopen(name,"rb");
 	saida = fopen(exit,"wb");
 	fprintf(saida,"%c%c",0,0);
 	int file_size=0;
@@ -66,6 +89,8 @@ for(i=0;i<256;i++) {
 	}
 }
 huffmanTree * arvore = createHTfromHEAP(heap);
+par(arvore);
+puts("");
 puts("Created A HuffmanTree with the Hash");
 Comp_HT* nometemp = create_Comp_HT();
 printHTinFile(arvore,saida);
@@ -105,20 +130,21 @@ while(!feof(entrada)) 	{
 		}
 	}
 }
-puts("Compressed the archive");
-fputc(Final_Byte,saida);
-if(bits_not_shifted==8) bits_not_shifted = 0;
-int trash = bits_not_shifted;
-rewind(saida);
-puts("Creating header");
-unsigned char *cabecalho;
-int tree_size=0;
-Tree_size(arvore,&tree_size);
-cabecalho = Create_header(trash,tree_size);
-printf("header = ");
-fputc(cabecalho[0],saida);
-fputc(cabecalho[1],saida);
-puts("End(closing the archives)");
-fclose(entrada);
-fclose(saida);
+	puts("Compressed the archive");
+	fputc(Final_Byte,saida);
+	if(bits_not_shifted==8) bits_not_shifted = 0;
+	int trash = bits_not_shifted;
+	rewind(saida);
+	puts("Creating header");
+	unsigned char *cabecalho;
+	int tree_size=0;
+	Tree_size(arvore,&tree_size);
+	printf("%d\n",tree_size);
+	cabecalho = Create_header(trash,tree_size);
+	printf("header = ");
+	fputc(cabecalho[0],saida);
+	fputc(cabecalho[1],saida);
+	puts("End(closing the archives)");
+	fclose(entrada);
+	fclose(saida);
 }

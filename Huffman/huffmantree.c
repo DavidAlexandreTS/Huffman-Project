@@ -16,7 +16,15 @@
 	aux->right=NULL;
 	return(aux);
 }
-
+void Tree_size(huffmanTree * ht,int * size)
+{
+	if(ht!=NULL)
+	{
+		(*size)++;
+		Tree_size(ht->left,size);
+		Tree_size(ht->right,size);
+	}
+}
 /*FunÃ§Ã£o que cria uma Ã¡rvore com filhos
  *Recebe: byte(void), frequÃªncia do byte (long long int) e
  *nÃ³s de esquerda e direita(huffmanTree)
@@ -112,7 +120,7 @@ void printNODE(huffmanTree *ht){
  */
 void printHTinFile (huffmanTree *ht,FILE *new){
 	if (!isHTempty(ht)){
-		fprintf(new,"%c",*(char *)ht->byte);
+		fprintf(new,"%c",*(unsigned char *)ht->byte);
 		printHTinFile(ht->left, new);
 		printHTinFile(ht->right, new);
 	}

@@ -12,9 +12,9 @@ int is_bit_i_set(unsigned char c, int i)
 	return mask & c;
 }
 
-unsigned char set_bit(unsigned char c, int i)
+unsigned short set_bit(unsigned short c, int i)
 {
-	unsigned char mask = 1 << i;
+	unsigned short mask = 1 << i;
 	return c | mask;
 }
 
@@ -28,18 +28,11 @@ int Trash_Size(FILE *file_a)
 int Tree_Size(FILE *file_a)
 {
     rewind(file_a);
-    unsigned int first_byte = fgetc(file_a) << 8;
-    unsigned int second_byte = fgetc(file_a);
+    unsigned short first_byte = fgetc(file_a) << 11;
+    first_byte = first_byte>>3;
+    unsigned short second_byte = fgetc(file_a);
     first_byte |= second_byte;
-    int tree_size = 0;
-    for (int i = 0; i <13; i ++)
-    {
-        if (is_bit_i_set(first_byte, i))
-        {
-            tree_size = set_bit(tree_size, i);
-        }
-    }
-    return tree_size;
+    return first_byte;
 }
 void PT_AR(huffmanTree * ht )
 {
@@ -74,12 +67,10 @@ huffmanTree *Extract(FILE *fila_a)
 
     return huff_tree;
 }
-
 void Decompress(FILE *file_a,FILE * file_e ,huffmanTree *actual, huffmanTree *root, unsigned char byte, int byte_actual,int trash,long long unsigned size)
 {
     if(size>1){
     if(isLeaf(actual)) {
-        printf("%c",*(unsigned char *)getBYTE(actual));
         fputc(*(unsigned char*)actual->byte,file_e);
         if(byte_actual>0)
         Decompress(file_a,file_e,root,root,byte,byte_actual,trash,size);
@@ -99,7 +90,7 @@ void Decompress(FILE *file_a,FILE * file_e ,huffmanTree *actual, huffmanTree *ro
                 Decompress(file_a,file_e,actual->left,root,byte,byte_actual-1,trash,size);
         }
     }
-    else {
+    else if(size==1){
         if(byte_actual>=trash) {
         if(isLeaf(actual)) {
             fputc(*(unsigned char *)getBYTE(actual),file_e);
@@ -120,24 +111,33 @@ long long unsigned Get_FILE_size(FILE * A)
 void Decompress_File(char * nome)
 {
  
+    FILE *fila_a = fopen(nome,"rb");
+    while(fila_a==NULL){
+        puts("Invalid File name\nType other");
+        scanf("%[^\n]s",nome);
+        fila_a = fopen(nome,"rb");
+    }
     char exit[1000];
     int i,tam = strlen(nome)-6;
     for(i=0;i<=tam;i++) exit[i] = nome[i];
         exit[i] = '\0';
-    FILE *fila_a = fopen(nome,"rb"),*file_e = fopen(exit,"wb");
+    FILE *file_e = fopen(exit,"wb");
+    if(fila_a!=NULL){
     int trash_size = Trash_Size(fila_a);
     int tree_size = Tree_Size(fila_a);
     huffmanTree *huff_tree = Extract(fila_a);
+   // PT_AR(huff_tree);
+    puts("");
     long long unsigned size= Get_FILE_size(fila_a);
     unsigned char byte;
-    rewind(fila_a);
     tree_size = Tree_Size(fila_a);
+        printf("%d\n",tree_size);
     for(i=0;i<tree_size;i++) {
-    byte = fgetc(fila_a);
+      byte = fgetc(fila_a);
+      }
+      printf("%d\n",size);
+    Decompress(fila_a,file_e,huff_tree,huff_tree,fgetc(fila_a),7,trash_size,size);
     }
-      puts("trash and tree size obtained");
-   Decompress(fila_a,file_e,huff_tree,huff_tree,fgetc(fila_a),7,trash_size,size);
-
     return;    
 }
 

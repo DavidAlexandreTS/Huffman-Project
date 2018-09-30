@@ -49,6 +49,12 @@ void enqueue(Heap *hipi, huffmanTree *ht)
 		printf("Heap Overflow\n");
 	}else
 	{
+		if(isLeaf(ht)&&((*(unsigned char *)getBYTE(ht))=='*'||(*(unsigned char *)getBYTE(ht)==92)))
+		{
+			unsigned char escape = '\\';
+			huffmanTree * node =  createTREE(&escape,ht->frequency,ht,NULL);
+			ht = node;
+		}
 		hipi -> data[++hipi -> size] = ht;
 		int key_index = hipi -> size;
 		int parent_index = get_parent_index(hipi,hipi -> size);
@@ -99,15 +105,6 @@ void print_heap(Heap *hipi, int aux)
 		i ++;
 	}
 	printf("\n");
-}
-void Tree_size(huffmanTree * ht,int * size)
-{
-	if(ht!=NULL)
-	{
-		(*size)++;
-		Tree_size(ht->left,size);
-		Tree_size(ht->right,size);
-	}
 }
 void heapsort(Heap *hipi)
 {

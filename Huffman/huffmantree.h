@@ -14,6 +14,7 @@ struct _HUFFMANTREE{
 	huffmanTree *right;
 };
 huffmanTree* createNODE(void * byte, long long int frequency);
+void Tree_size(huffmanTree * ht,int * size);
 
 huffmanTree* createTREE(void * byte, long long int frequency, huffmanTree *left, huffmanTree *right);
 
