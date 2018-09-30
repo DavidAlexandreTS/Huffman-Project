@@ -120,7 +120,7 @@ void printNODE(huffmanTree *ht){
  */
 void printHTinFile (huffmanTree *ht,FILE *new){
 	if (!isHTempty(ht)){
-		fprintf(new,"%c",*(unsigned char *)ht->byte);
+		fputc(*(unsigned char*)getBYTE(ht),new);
 		printHTinFile(ht->left, new);
 		printHTinFile(ht->right, new);
 	}

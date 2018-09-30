@@ -82,7 +82,8 @@ void compress(char * name)
 	exit[i+5] = '\0';
 	printf("%s\n",exit);
 	saida = fopen(exit,"wb");
-	fprintf(saida,"%c%c",0,0);
+	fputc(0,saida);
+	fputc(0,saida);
 	int file_size=0;
 	rewind(entrada);
 	while(!feof(entrada)) {
