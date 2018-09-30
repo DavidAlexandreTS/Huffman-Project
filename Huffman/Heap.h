@@ -22,9 +22,10 @@ int item_of(Heap *hipi, int i);
 //pega o item de um indice
 Heap* create_heap();
 //cria a Heap
-void swap(huffmanTree *a, huffmanTree *b);
+void swap(huffmanTree **a, huffmanTree **b);
 //troca os dados entre dois ponteiros
 void enqueue(Heap *hipi, huffmanTree * ht);
+void Tree_size(huffmanTree * ht,int * size);
 void min_heapify(Heap *hipi, int i);
 void heapsort(Heap *hipi);
 void *dequeue(Heap *hipi);

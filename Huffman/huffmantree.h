@@ -32,5 +32,6 @@ void printNODE(huffmanTree *ht);
 
 void printHTinFile (huffmanTree * ht,FILE *new);
 void destroyHTREE(huffmanTree *ht);
-
+int max (int a,int b);
+int height(huffmanTree * bt);
 #endif

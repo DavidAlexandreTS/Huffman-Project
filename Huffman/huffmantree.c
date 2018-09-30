@@ -9,7 +9,8 @@
  */
  huffmanTree* createNODE(void *byte, long long int frequency){
 	huffmanTree *aux = (huffmanTree*) malloc(sizeof(huffmanTree));
-	aux->byte = byte;
+	    aux->byte = malloc(sizeof(unsigned char));
+    *(unsigned char * )aux->byte = *(unsigned char *) byte;
 	aux->frequency = frequency;
 	aux->left=NULL;
 	aux->right=NULL;
@@ -24,7 +25,7 @@
 huffmanTree* createTREE(void * byte, long long int frequency, huffmanTree *left, huffmanTree *right){
 	huffmanTree *aux = (huffmanTree*) malloc(sizeof(huffmanTree));
 	aux->byte = malloc(sizeof(unsigned char));
-	*(char*)aux->byte = *(char*)byte;
+	*(unsigned char*)aux->byte = *(unsigned char*)byte;
 	aux->frequency = frequency;
 	aux->left=left;
 	aux->right=right;
@@ -127,4 +128,17 @@ void destroyHTREE (huffmanTree *ht){
 		destroyHTREE(ht->right);
 		free(ht);
 	}
+}
+int max (int a,int b)
+{
+  return ( a > b ) ? a:b;
+}
+int height(huffmanTree * bt)
+{
+  if(bt==NULL)
+  return -1;
+  else
+  {
+    return 1+ max(height(bt->left),height(bt->right));
+  }
 }

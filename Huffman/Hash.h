@@ -8,7 +8,7 @@ typedef struct element element;
 typedef struct hash_table hash_table;
 struct element
 {
-	void * elemento;
+	void * byte;
 	long long int frequency;
 };
  struct hash_table

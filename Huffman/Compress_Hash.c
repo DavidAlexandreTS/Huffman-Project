@@ -16,7 +16,7 @@ void put2(Comp_HT * ht,void *byte ,int number,void * chave)
 {
 	int key = (*(unsigned char*)chave)%MAX_HASH_SIZE;
 	ht->table[key] = (Comp_element *)malloc(sizeof(Comp_element));
-	ht->table[key]->byte = malloc(sizeof(unsigned char));
-	*(unsigned char*)ht->table[key]->byte = *(unsigned char*)byte;
+	ht->table[key]->byte = malloc(sizeof(unsigned int));
+	*(unsigned int*)ht->table[key]->byte = *(unsigned int*)byte;
 	ht->table[key]->number_of_bits = number;
 }

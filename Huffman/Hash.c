@@ -14,15 +14,15 @@ hash_table * create_hash()
 element * create_element(void * data,size_t data_size)
 {
 	element * newelement = (element *)malloc(sizeof(element));
-	newelement->elemento = malloc(data_size);
-	*(unsigned char*)(newelement->elemento) = *(unsigned char*)data;
+	newelement->byte = malloc(data_size);
+	*(unsigned char*)(newelement->byte) = *(unsigned char*)data;
 	newelement->frequency =1;
 	return newelement;
 }
 void put(hash_table * ht,void * data)
 {
 	int key;
-	key = (*(int *)data%MAX_HASH_SIZE);
+	key = (*(unsigned char *)data%MAX_HASH_SIZE);
 	if(ht->table[key]!=NULL)
 	{
 		ht->table[key]->frequency++;

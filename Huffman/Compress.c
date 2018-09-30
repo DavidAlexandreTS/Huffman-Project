@@ -18,7 +18,7 @@ unsigned char* Create_header(int trash_size,int tree_size)
 	bytes[1] =  tree_size;
 	return (bytes);
 }
-void set (huffmanTree * bt,Comp_HT* ht,int height,unsigned char byte)
+void set(huffmanTree * bt,Comp_HT* ht,int height,unsigned int byte)
 {
 	if(bt!=NULL)
 	{
@@ -26,15 +26,7 @@ void set (huffmanTree * bt,Comp_HT* ht,int height,unsigned char byte)
 		 set(bt->left,ht,height+1,byte<<1);
 		 set(bt->right,ht,height+1,(byte<<1)+1);
 	}
-}
-int get_dot(char * s)
-{
-	int i,tam = strlen(s);
-	for(i=0;i<tam;i++)
-	{
-		if(s[i]=='.') return i;
-	}
-	return -1;
+
 }
 void compress(char * name)
 {
@@ -42,37 +34,34 @@ void compress(char * name)
 	unsigned char byte;
 	char exit[100];
 	int i;
-	short dot = get_dot(name);
-	for(i=0;i<dot;i++) exit[i] = name[i];
-	printf("%s\n",exit);
+	short tam = strlen(name);
+	for(i=0;i<tam;i++) exit[i] = name[i];
 	exit[i]='.';
 	exit[i+1] = 'h';
 	exit[i+2] = 'u';
 	exit[i+3] = 'f';
 	exit[i+4] = 'f';
 	exit[i+5] = '\0';
-	//strcat(exit,".huff");
+	printf("%s\n",exit);
 	FILE *entrada,*saida;
 	entrada = fopen(name,"rb");
 	saida = fopen(exit,"wb");
 	fprintf(saida,"%c%c",0,0);
 	int file_size=0;
+	rewind(entrada);
 	while(!feof(entrada)) {
 	byte = fgetc(entrada);
-	printf("%c ",byte);
-	if(byte=='*') byte = '/';
-		if(!feof(entrada))
-		{
+	if(!feof(entrada)){
 		file_size++;
 		put(ht,&byte);
 		}
 	}
 printf("\nAll the bytes of this archive are on the Hash\n");
 Heap *heap = create_heap();
-huffmanTree * new_node;
+huffmanTree * new_node = NULL;
 for(i=0;i<256;i++) {
-	if(ht->table[i]!=NULL){
-		new_node = createNODE(ht->table[i]->elemento,ht->table[i]->frequency);
+    	if(ht->table[i]!=NULL){
+		new_node = createNODE(ht->table[i]->byte,ht->table[i]->frequency);
 		enqueue(heap,new_node);
 	}
 }
@@ -84,49 +73,51 @@ puts("Got all the compressed bits for the archive");
 rewind(entrada);
 set(arvore,nometemp,0,0);
 unsigned char Final_Byte =0;
-unsigned char bits;
-short bits_not_shifted =8;
+unsigned int bits;
+unsigned char temp;
+short bits_not_shifted = 8;
 short bits_number;
-i=0;
+int bits_int = (sizeof(unsigned int)*8);
 puts("Starting the compression of archive");
-while(!feof(entrada)&&i<file_size) 	{
+printf("\n");
+while(!feof(entrada)) 	{
 	byte = fgetc(entrada);
-	if(byte =='*') byte = '/';
-	bits_number = nometemp->table[byte]->number_of_bits;
-	bits = *(unsigned char*)nometemp->table[byte]->byte;
-	if(bits_not_shifted==0)  {
-		bin(Final_Byte);
-		printf("\n");
-		fputc(Final_Byte,saida);
-		bits_not_shifted = 8;
-		Final_Byte = 0;
-	}
-	if(bits_not_shifted>=bits_number) {
-			bits_not_shifted = bits_not_shifted - bits_number;
-			Final_Byte |= (bits<<(bits_not_shifted));
+	if(!feof(entrada)){
+		if(byte==92) byte ='\\';
+		if(byte =='*') byte = 92;
+		bits_number = nometemp->table[byte%MAX_HASH_SIZE]->number_of_bits;
+		bits = *(unsigned int*)nometemp->table[byte%MAX_HASH_SIZE]->byte;
+		if(bits_not_shifted==0)  {
+			fputc(Final_Byte,saida);
+			bits_not_shifted = 8;
+			Final_Byte = 0;
 		}
-	else  {
+		if(bits_not_shifted>=bits_number) {
+				bits_not_shifted = bits_not_shifted - bits_number;
+				Final_Byte |= (bits<<(bits_not_shifted));
+			}
+		else  {
 		Final_Byte |= (bits>>(bits_number-bits_not_shifted));
-		bin(Final_Byte);
-		printf("\n");
 		fputc(Final_Byte,saida);
 		bits_not_shifted = 8-(bits_number-bits_not_shifted);
 		Final_Byte = 0;
 		Final_Byte|= (bits<<bits_not_shifted);
+		}
 	}
-	i++;
 }
 puts("Compressed the archive");
-printf("Byte with trash (last byte) : ");
-bin(Final_Byte);
-puts("");
 fputc(Final_Byte,saida);
+if(bits_not_shifted==8) bits_not_shifted = 0;
 int trash = bits_not_shifted;
 rewind(saida);
 puts("Creating header");
 unsigned char *cabecalho;
-cabecalho = Create_header(trash,arvore->size);
-fprintf(saida,"%s",cabecalho);
+int tree_size=0;
+Tree_size(arvore,&tree_size);
+cabecalho = Create_header(trash,tree_size);
+printf("header = ");
+fputc(cabecalho[0],saida);
+fputc(cabecalho[1],saida);
 puts("End(closing the archives)");
 fclose(entrada);
 fclose(saida);

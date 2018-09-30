@@ -22,19 +22,21 @@ int get_right_index(Heap *hipi, int i)
 
 int item_of(Heap *hipi, int i)
 {
-	return *(int *)hipi -> data[i];
+	return *(unsigned char *)hipi -> data[i]->byte;
 }
 
 Heap * create_heap ()
 {
+	int i; 
 	Heap * hp = (Heap *) malloc(sizeof(Heap ));
+	for(i=0;i<MAX_HEAP_SIZE;i++) hp->data[i]=NULL;
 	hp->size =0;
 	return hp;
 }
 
-void swap(huffmanTree *a, huffmanTree *b)
+void swap(huffmanTree **a, huffmanTree **b)
 {
-	huffmanTree  aux;
+	huffmanTree  *aux;
 	aux = *a;
 	*a = *b;
 	*b = aux;
@@ -53,7 +55,7 @@ void enqueue(Heap *hipi, huffmanTree *ht)
 
 		while (parent_index >= 1 && (hipi ->data[key_index]->frequency) < (hipi -> data[parent_index]->frequency))
 		{
-			swap(hipi -> data[key_index], hipi -> data[parent_index]);
+			swap(&hipi -> data[key_index], &hipi -> data[parent_index]);
 			key_index = parent_index;
 			parent_index =  get_parent_index(hipi, key_index);
 		}
@@ -68,7 +70,7 @@ void min_heapify(Heap *hipi, int i)
 	int left_index = get_left_index(hipi, i);
 	int right_index = get_right_index(hipi, i);
 
-	if (left_index <= hipi -> size && hipi -> data[left_index]->frequency < hipi -> data[i]->frequency)
+	if (left_index <= hipi -> size && hipi -> data[left_index] -> frequency < hipi -> data[i] -> frequency)
 	{
 		lowest = left_index;
 	}else
@@ -76,14 +78,14 @@ void min_heapify(Heap *hipi, int i)
 		lowest = i;
 	}
 
-	if (right_index <= (hipi -> size) && (hipi -> data[right_index] ->frequency) < (hipi -> data[lowest] ->frequency))
+	if (right_index <= (hipi -> size) && (hipi -> data[right_index] -> frequency) < (hipi -> data[lowest] -> frequency))
 	{
 		lowest = right_index;
 	}
 
-	if ((*(int*)hipi -> data[i]->byte) != (*(int*)hipi -> data[lowest]->byte))
+	if (i != lowest)
 	{
-		swap((hipi -> data[i]), (hipi -> data[lowest]));
+		swap(&(hipi -> data[i]), &(hipi -> data[lowest]));
 		min_heapify(hipi, lowest);
 	}
 }
@@ -93,18 +95,26 @@ void print_heap(Heap *hipi, int aux)
 
 	while(i <= aux)
 	{
-		printf("(%x) ",*(char*) (hipi -> data[i]->byte));
+		printf("(%c) ",*(unsigned char*) (hipi -> data[i]->byte));
 		i ++;
 	}
 	printf("\n");
 }
-
+void Tree_size(huffmanTree * ht,int * size)
+{
+	if(ht!=NULL)
+	{
+		(*size)++;
+		Tree_size(ht->left,size);
+		Tree_size(ht->right,size);
+	}
+}
 void heapsort(Heap *hipi)
 {
 	int i;
 	for (i = hipi -> size; i >= 2; i --)
 	{
-		swap((hipi -> data[1]),(hipi -> data[i]));
+		swap(&(hipi -> data[1]),&(hipi -> data[i]));
 		hipi -> size --;
 		min_heapify(hipi, 1);
 	}
@@ -117,7 +127,7 @@ void * dequeue(Heap *hipi)
 		return NULL;
 	}else
 	{
-		void *item = hipi -> data[1];
+		huffmanTree *item = hipi -> data[1];
 
 		hipi -> data[1] = hipi -> data[(hipi -> size)];
 		(hipi -> size) --;
@@ -128,22 +138,18 @@ void * dequeue(Heap *hipi)
 }
 huffmanTree* createHTfromHEAP(Heap *heap){
 	huffmanTree *a,*b,*aux;
-	int i=0;
-	while(heap->size!=1) {
-		//retira os nós da heap.
+	while(heap->size>1) {
+		//retira os nos da heap.
 		a = dequeue(heap);
 		b = dequeue(heap);
 		//comentaro a seguir: caso a arvore nao esteja sendo feita corretamente descomente-o
-		if((*(unsigned char*) b->byte)=='*'&&(*(unsigned char*)a->byte)!='*') swap(a,b);
+		//if((*(unsigned char*) b->byte)=='*'&&(*(unsigned char*)a->byte)!='*') swap(&a,&b);
 		//cria nó com as frequencias somadas e seu char será
 		//'*'(ou '\', ainda falta implementar) que é nosso caractere de apoio
 		unsigned char multiplicacion = '*';
 		aux = createTREE(&multiplicacion, a->frequency + b->frequency, a, b);
 		//coloca nossa arvore de volta na heap
 		enqueue(heap,aux);
-		i++;
 	}
-	aux = dequeue(heap);
-	aux->size = i;
-	return aux;
+	return dequeue(heap);
 }
