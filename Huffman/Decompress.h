@@ -102,10 +102,10 @@ void Decompress(FILE *file_a,FILE * file_e ,huffmanTree *actual, huffmanTree *ro
         if(byte_actual==trash-1&&isLeaf(actual))fputc(*(unsigned char *)getBYTE(actual),file_e);
     }
 }
-long long unsigned Get_FILE_size(FILE * A)
+long long unsigned Get_FILE_size(FILE * file)
 {
     long long unsigned i;
-    for(i=0;!feof(A);i++) fgetc(A);
+    for(i=0;!feof(file);i++) fgetc(file);
         return i-1;
 }
 void Decompress_File(char * nome)

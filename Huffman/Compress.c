@@ -45,6 +45,19 @@ void par(huffmanTree * bt)
 	}
 	printf(")");
 }
+void pth(Comp_HT * ht)
+{
+	int i;
+	for(i=0;i<256;i++)
+	{
+		if(ht->table[i]!=NULL)
+		{
+			printf("%c %d bin = ",i,ht->table[i]->number_of_bits);
+			bin(*(unsigned char*)ht->table[i]->byte);
+			puts("");
+		}
+	}
+}
 void compress(char * name)
 {
 	hash_table * ht = create_hash();
@@ -89,7 +102,7 @@ for(i=0;i<256;i++) {
 	}
 }
 huffmanTree * arvore = createHTfromHEAP(heap);
-par(arvore);
+//par(arvore);
 puts("");
 puts("Created A HuffmanTree with the Hash");
 Comp_HT* nometemp = create_Comp_HT();
@@ -105,11 +118,11 @@ short bits_number;
 int bits_int = (sizeof(unsigned int)*8);
 puts("Starting the compression of archive");
 printf("\n");
+pth(nometemp);
 while(!feof(entrada)) 	{
 	byte = fgetc(entrada);
+	printf("%c\n",byte);
 	if(!feof(entrada)){
-		if(byte==92) byte ='\\';
-		if(byte =='*') byte = 92;
 		bits_number = nometemp->table[byte%MAX_HASH_SIZE]->number_of_bits;
 		bits = *(unsigned int*)nometemp->table[byte%MAX_HASH_SIZE]->byte;
 		if(bits_not_shifted==0)  {
