@@ -67,46 +67,55 @@ huffmanTree *Extract(FILE *fila_a)
 
     return huff_tree;
 }
-void Decompress(FILE *file_a,FILE * file_e ,huffmanTree *actual, huffmanTree *root, unsigned char byte, int byte_actual,int trash,long long unsigned size)
-{
-    if(size>1){
-    if(isLeaf(actual)) {
-        fputc(*(unsigned char*)actual->byte,file_e);
-        if(byte_actual>0)
-        Decompress(file_a,file_e,root,root,byte,byte_actual,trash,size);
-        else if (is_bit_i_set(byte,byte_actual))Decompress(file_a,file_e,root->right,root,fgetc(file_a),7,trash,size-1);
-        else Decompress(file_a,file_e,root->left,root,fgetc(file_a),7,trash,size-1);
-    }
-    else {
-       // bin(byte);
-       // printf(" %d\n",byte_actual);
-          if(byte_actual==0){
-            if(is_bit_i_set(byte,byte_actual)) Decompress(file_a,file_e,actual->right,root,fgetc(file_a),7,trash,size-1);
-            else Decompress(file_a,file_e,actual->left,root,fgetc(file_a),7,trash,size-1);
-        }
-        else if(is_bit_i_set(byte,byte_actual)) 
-                Decompress(file_a,file_e,actual->right,root,byte,byte_actual-1,trash,size);
-            else 
-                Decompress(file_a,file_e,actual->left,root,byte,byte_actual-1,trash,size);
-        }
-    }
-    else if(size==1){
-        if(byte_actual>=trash) {
-        if(isLeaf(actual)) {
-            fputc(*(unsigned char *)getBYTE(actual),file_e);
-            Decompress(file_a,file_e,root,root,byte,byte_actual,trash,size);
-            }
-            else if(is_bit_i_set(byte,byte_actual)) Decompress(file_a,file_e,actual->right,root,byte,byte_actual-1,trash,size);
-            else Decompress(file_a,file_e,actual->left,root,byte,byte_actual-1,trash,size);
-        }
-        if(byte_actual==trash-1&&isLeaf(actual))fputc(*(unsigned char *)getBYTE(actual),file_e);
-    }
-}
 long long unsigned Get_FILE_size(FILE * file)
 {
     long long unsigned i;
     for(i=0;!feof(file);i++) fgetc(file);
         return i-1;
+}
+void Decompress(FILE * enter,FILE * exit,huffmanTree *Tree,int trash,long long unsigned size)
+{
+    unsigned char byte;
+    int actual;
+    huffmanTree * H_A = Tree;
+    long long unsigned i=0;
+    while(i<size)
+    {
+        byte = fgetc(enter);
+        actual=7;
+        if(i<size-1)
+        {
+            while(actual>=0)
+            {
+                if(isLeaf(H_A)) {
+                    fputc(*(unsigned char*)getBYTE(H_A),exit);
+                    H_A = Tree;
+                }
+                if(is_bit_i_set(byte,actual)) H_A = go_right(H_A);
+                else H_A = go_left(H_A);
+                actual--;
+            }
+        }
+        else
+        {
+            printf("%x\n",byte);
+            bin(byte);
+            puts("");
+            while(actual>=trash)
+            {
+                    if(isLeaf(H_A)) {
+                    fputc(*(unsigned char*)getBYTE(H_A),exit);
+                    H_A = Tree;
+                }
+                if(is_bit_i_set(byte,actual)) H_A = go_right(H_A);
+                else H_A = go_left(H_A);
+                actual--;
+            }
+            if(isLeaf(H_A)) fputc(*(unsigned char *)getBYTE(H_A),exit);
+        }
+        i++;
+    }
+    printf("%llu\n",i);
 }
 void Decompress_File(char * nome)
 {
@@ -114,11 +123,11 @@ void Decompress_File(char * nome)
     FILE *fila_a = fopen(nome,"rb");
     while(fila_a==NULL){
         puts("Invalid File name\nType other");
-        scanf("%[^\n]s",nome);
+        gets(nome);
         fila_a = fopen(nome,"rb");
     }
     char exit[1000];
-    int i,tam = strlen(nome)-6;
+    long long unsigned i,tam = strlen(nome)-6;
     for(i=0;i<=tam;i++) exit[i] = nome[i];
         exit[i] = '\0';
     FILE *file_e = fopen(exit,"wb");
@@ -126,17 +135,11 @@ void Decompress_File(char * nome)
     int trash_size = Trash_Size(fila_a);
     int tree_size = Tree_Size(fila_a);
     huffmanTree *huff_tree = Extract(fila_a);
-   // PT_AR(huff_tree);
     puts("");
     long long unsigned size= Get_FILE_size(fila_a);
-    unsigned char byte;
     tree_size = Tree_Size(fila_a);
-        printf("%d\n",tree_size);
-    for(i=0;i<tree_size;i++) {
-      byte = fgetc(fila_a);
-      }
-      printf("%d\n",size);
-    Decompress(fila_a,file_e,huff_tree,huff_tree,fgetc(fila_a),7,trash_size,size);
+    for(i=0;i<tree_size;i++) fgetc(fila_a);
+    Decompress(fila_a,file_e,huff_tree,trash_size,size);
     }
     return;    
 }

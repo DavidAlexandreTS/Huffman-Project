@@ -102,7 +102,7 @@ for(i=0;i<256;i++) {
 	}
 }
 huffmanTree * arvore = createHTfromHEAP(heap);
-//par(arvore);
+par(arvore);
 puts("");
 puts("Created A HuffmanTree with the Hash");
 Comp_HT* nometemp = create_Comp_HT();
@@ -118,10 +118,9 @@ short bits_number;
 int bits_int = (sizeof(unsigned int)*8);
 puts("Starting the compression of archive");
 printf("\n");
-pth(nometemp);
+//pth(nometemp);
 while(!feof(entrada)) 	{
 	byte = fgetc(entrada);
-	printf("%c\n",byte);
 	if(!feof(entrada)){
 		bits_number = nometemp->table[byte%MAX_HASH_SIZE]->number_of_bits;
 		bits = *(unsigned int*)nometemp->table[byte%MAX_HASH_SIZE]->byte;
