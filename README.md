@@ -1,2 +1,4 @@
-# Huffman-Project
-AB2 da disciplina Estruturas de Dados - Ufal
+#Data Struct Project
+By: David S Alexandre
+    Jose Silvino Neto
+    Pedro Henrique
