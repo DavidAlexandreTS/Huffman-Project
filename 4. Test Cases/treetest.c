@@ -10,10 +10,11 @@ void create_node_test(){
 	long long int frequency = 1;
 	huffmanTree * nodetest = createNODE(&byte,frequency);
 	
-	CU_ASSERT_PTR_EQUAL(nodetest->byte, byte);
-	CU_ASSERT_PTR_EQUAL(nodetest->frequency, frequency);
-	CU_ASSERT_PTR_NULL(nodetest->left);
-	CU_ASSERT_PTR_NULL(nodetest->right);
+	CU_ASSERT_PTR_EQUAL(getBYTE(nodetest), byte);
+	CU_ASSERT_PTR_EQUAL(getFREQ(nodetest), frequency);
+	CU_ASSERT_PTR_NULL(go_left(nodetest));
+	CU_ASSERT_PTR_NULL(go_right(nodetest))
+	destroyHTREE(nodetest);
 }
 
 void create_tree_test(){
@@ -22,13 +23,14 @@ void create_tree_test(){
 	huffmanTree * nodeA=NULL;
 	huffmanTree * nodeB=NULL;
 	huffmanTree * treetest = createTREE(&byte,frequency,nodeA,nodeB);
-	//caso com a arvore vazia
-	CU_ASSERT_PTR_EQUAL(treetest->byte, byte);
-	CU_ASSERT_PTR_EQUAL(treetest->frequency, frequency);
-	CU_ASSERT_PTR_NULL(treetest->left);
-	CU_ASSERT_PTR_NULL(treetest->right);
-	destroyHTREE(treetest);
-	//caso com a arvore "cheia"
+	
+	//empty tree
+	CU_ASSERT_PTR_EQUAL(getBYTE(nodetest), byte);
+	CU_ASSERT_PTR_EQUAL(getFREQ(nodetest), frequency);
+	CU_ASSERT_PTR_NULL(go_left(nodetest));
+	CU_ASSERT_PTR_NULL(go_right(nodetest));
+	
+	//"full" tree
 	unsigned char byteA='a',byteB='b';
 	long long int freqA=2,freqB=3;
 	nodeA=createNODE(&byteA,freqA);
@@ -36,28 +38,33 @@ void create_tree_test(){
 	treetest = createTREE(&byte,frequency,nodeA,nodeB);
 	
 	//root
-	CU_ASSERT_PTR_EQUAL(treetest->byte, byte);
-	CU_ASSERT_PTR_EQUAL(treetest->frequency, frequency);
-	//node da esquerda
-	CU_ASSERT_PTR_EQUAL(treetest->left->byte, byteA);
-	CU_ASSERT_PTR_EQUAL(treetest->left->frequency, freqA);
-	//node da direita
-	CU_ASSERT_PTR_EQUAL(treetest->right->byte, byteB);
-	CU_ASSERT_PTR_EQUAL(treetest->right->frequency, freqB);
+	CU_ASSERT_PTR_EQUAL(getBYTE(treetest), byte);
+	CU_ASSERT_PTR_EQUAL(getFREQ(treetest), frequency);
+	
+	//left node
+	CU_ASSERT_PTR_EQUAL(getBYTE(go_left(treetest)), byteA);
+	CU_ASSERT_PTR_EQUAL(getFREQ(go_left(treetest)), freqA);
+	
+	//right node
+	CU_ASSERT_PTR_EQUAL(getBYTE(go_right(treetest)), byteB);
+	CU_ASSERT_PTR_EQUAL(getFREQ(go_right(treetest)), freqB);
 	
 	destroyHTREE(treetest);
 }
 
 void isHTempty_test(){
 	huffmanTree * treetest = NULL;
-	//caso com a arvore realmente vazia
+	
+	//really empty tree
 	CU_ASSERT_TRUE(isHTempty(treetest));
 	
-	//enchendo a arvore e testando
+	//not empty tree
 	unsigned char byte='*';
 	long long int frequency = 1;
 	createNODE(&byte,frequency);
+	
 	CU_ASSERT_FALSE(isHTempty(treetest));
+	
 	destroyHTREE(treetest);
 }
 
@@ -68,10 +75,11 @@ void isLeaf_test(){
 	huffmanTree * nodeA=NULL;
 	huffmanTree * nodeB=NULL;
 	huffmanTree * treetest = createTREE(&byte,frequency,nodeA,nodeB);
-	//teste se um nó sem esquerda e direita é folha
+	
+	//root only
 	CU_ASSERT_TRUE(isLeaf(treetest));
-	destroyHTREE(treetest);
-	//caso com a arvore "cheia"
+	
+	//root with 2 leafs
 	unsigned char byteA='a',byteB='b';
 	long long int freqA=2,freqB=3;
 	nodeA=createNODE(&byteA,freqA);
@@ -80,20 +88,23 @@ void isLeaf_test(){
 	
 	//root
 	CU_ASSERT_FALSE(isHTempty(treetest));
-	//node da esquerda
-	CU_ASSERT_TRUE(isLeaf(treetest->left));
-	//node da direita
-	CU_ASSERT_TRUE(isLeaf(treetest->right));
+	
+	//left node
+	CU_ASSERT_TRUE(isLeaf(go_left(treetest)));
+	
+	//right node
+	CU_ASSERT_TRUE(isLeaf(go_right(treetest)));
 
 	destroyHTREE(treetest);
 }
 void go_left_test(){
 	
 	huffmanTree * treetest = NULL;
-	//teste com arvore vazia
+
+	//empty tree case
 	CU_ASSERT_PTR_NULL(go_left(treetest));
 
-	//caso com a arvore "cheia"
+	//"full" tree case
 	huffmanTree * nodeA=NULL;
 	huffmanTree * nodeB=NULL;
 
@@ -105,20 +116,19 @@ void go_left_test(){
 	nodeB=createNODE(&byteB,freqB);
 	treetest = createTREE(&byte,frequency,nodeA,nodeB);
 	
-	//dá o get left e compara os valores, nao sei se fiz certo
 	huffmanTree * test = go_left(treetest);
-	CU_ASSERT_PTR_EQUAL(test->byte, byteA);
-	CU_ASSERT_PTR_EQUAL(test->frequency, freqA);
+	CU_ASSERT_PTR_EQUAL(getBYTE(test), byteA);
+	CU_ASSERT_PTR_EQUAL(getFREQ(test), freqA);
 
 	destroyHTREE(treetest);
 }
 void go_right_test(){
-//mesma coisa do go left mas indo pra direita
 	huffmanTree * treetest = NULL;
-	//teste com arvore vazia
+	
+	//empty tree
 	CU_ASSERT_PTR_NULL(go_left(treetest));
 
-	//caso com a arvore "cheia"
+	//"full" tree
 	huffmanTree * nodeA=NULL;
 	huffmanTree * nodeB=NULL;
 
@@ -130,13 +140,13 @@ void go_right_test(){
 	nodeB=createNODE(&byteB,freqB);
 	treetest = createTREE(&byte,frequency,nodeA,nodeB);
 	
-	//dá o get left e compara os valores, nao sei se fiz certo
 	huffmanTree * test = go_right(treetest);
-	CU_ASSERT_PTR_EQUAL(test->byte, byteB);
-	CU_ASSERT_PTR_EQUAL(test->frequency, freqB);
+	CU_ASSERT_PTR_EQUAL(getBYTE(test), byteB);
+	CU_ASSERT_PTR_EQUAL(getFREQ(test), freqB);
 
 	destroyHTREE(treetest);
 }
+
 void get_byte_test(){
 	unsigned char byte='*';
 	long long int frequency = 1;
@@ -145,6 +155,7 @@ void get_byte_test(){
 	CU_ASSERT_PTR_EQUAL(nodetest->byte, byte);
 	destroyHTREE(nodetest);
 }
+
 void get_freq_test(){
 	unsigned char byte='*';
 	long long int frequency = 1;
@@ -158,108 +169,60 @@ void max_test(){
 	a=35;
 	b=29;
 	CU_ASSERT_EQUAL(max(a,b),a);
-	//fazer caso com a<bS
 }
+
 void height_test(){
-		// adiciona varios numeros numa arvore e testa sua altura
 
 	unsigned char byte ='*';
 	long long int freq=1;
 	huffmanTree * ht= NULL;
-// a arvore nao ta sendo construida direito por causa do erro acima e essa função ta dando erro
-//resolver a arvore resolve o problema
-//caso com arvore vazia
+
+	//empty tree
 	CU_ASSERT_PTR_EQUAL(height(ht), -1);
-//caso só com a raiz
+	
+	//tree with root only
 	ht= createNODE(&byte,freq);
 	CU_ASSERT_PTR_EQUAL(height(ht), 0);
-// adicionar mais nós e ir checando tamanho a cada passo com o mesmo comando acima
+	//adding more nodes
 
 }
 
-void printNODE_test(){
+void tree_size_test(){
 	unsigned char byte ='*';
 	long long int freq=1;
 	huffmanTree * ht= createNODE(&byte,freq);
-	//CU_ASSERT_STRING_EQUAL(printNODE(ht), "letter: * | freq.: 1\n");
+	//CU_ASSERT_PTR_EQUAL(Tree_size(ht,0), 0);
+// add more nodes and check
 }
 
-/*
-void printHTinFile_test(){
-	//preciso de um caso pra construir a arvore
-
-	CU_ASSERT_STRING_EQUAL(printHTinFile(ht), "string da arvore aqui");
-}*/
-
-/*
-
-void printHTinFile (huffmanTree * ht,FILE *new);
-void destroyHTREE(huffmanTree *ht);
-*/
 //END OF TREE FUNCTIONS
 
 int main(){
+
 	//initialize test registry
 	if(CUE_SUCCESS != CU_initialize_registry()) return CU_get_error();
 
-	CU_pSuite pSuite = NULL;
+	CU_pSuite creating_root_TEST = NULL;
+	CU_pSuite creating_tree_TEST = NULL;
+	CU_pSuite tree_features_TEST = NULL;
+
+	//adding suites
+	creating_root_TEST= CU_add_suite("Testing root creation",0,0);
+	creating_tree_TEST= CU_add_suite("Testing tree creation",0,0);
+	tree_features_TEST = CU_add_suite("Testing tree features",0,0);
 
 	//huffman tree test
-	pSuite = CU_add_suite("huffman_tree_test_suite",0,0);
-	
-	if (NULL == CU_add_test(pSuite,"create_node test",create_node_test)){
-		CU_cleanup_registry();
-		return CU_get_error();	
-	}
-	if (NULL == CU_add_test(pSuite,"create_tree test",create_tree_test)){
-		CU_cleanup_registry();
-		return CU_get_error();	
-	}
-	if (NULL == CU_add_test(pSuite,"isHTempty test",isHTempty_test)){
-		CU_cleanup_registry();
-		return CU_get_error();	
-	}
-	if (NULL == CU_add_test(pSuite,"isLeaf test",isLeaf_test)){
-		CU_cleanup_registry();
-		return CU_get_error();	
-	}
-	if (NULL == CU_add_test(pSuite,"go_left test",go_left_test)){
-		CU_cleanup_registry();
-		return CU_get_error();	
-	}
-	if (NULL == CU_add_test(pSuite,"go_right test",go_right_test)){
-		CU_cleanup_registry();
-		return CU_get_error();	
-	}
-	
-	if (NULL == CU_add_test(pSuite,"getBYTE test",get_byte_test)){
-		CU_cleanup_registry();
-		return CU_get_error();	
-	}
-
-	if (NULL == CU_add_test(pSuite,"getFREQ test",get_freq_test)){
-		CU_cleanup_registry();
-		return CU_get_error();	
-	}
-/*
-	if (NULL == CU_add_test(pSuite,"printNODE test",printNODE_test)){
-		CU_cleanup_registry();
-		return CU_get_error();	
-	}
-	if (NULL == CU_add_test(pSuite,"printHTinfile test",printHTinFile_test)){
-		CU_cleanup_registry();
-		return CU_get_error();	
-	}
-*/
-	if (NULL == CU_add_test(pSuite,"max test",max_test)){
-		CU_cleanup_registry();
-		return CU_get_error();	
-	}
-
-	if (NULL == CU_add_test(pSuite,"height test",height_test)){
-		CU_cleanup_registry();
-		return CU_get_error();	
-	}
+	CU_add_test(creating_root_TEST,"Testing 'create_node' function",create_node_test);
+	CU_add_test(creating_tree_TEST,"Testing 'create_tree' function",create_tree_test);	
+	CU_add_test(tree_features_TEST,"Testing 'isHTempty' function",isHTempty_test);	
+	CU_add_test(tree_features_TEST,"Testing 'isLeaf' function",isLeaf_test);	
+	CU_add_test(tree_features_TEST,"Testing 'go_left'function",go_left_test);
+	CU_add_test(tree_features_TEST,"Testing 'go_right' function",go_right_test);	
+	CU_add_test(tree_features_TEST,"Testing 'getBYTE' function",get_byte_test);	
+	CU_add_test(tree_features_TEST,"Testing 'getFREQ' function",get_freq_test);	
+	CU_add_test(tree_features_TEST,"Testing 'max test' function",max_test);
+	CU_add_test(tree_features_TEST,"Testing 'height' function",height_test);
+	CU_add_test(tree_features_TEST,"Testing 'tree_size' function",height_test);	
 
 	//end of huffman tree test
 
