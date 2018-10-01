@@ -1,4 +1,5 @@
-#Data Struct Project
+Data Struct Project
+
 By: David S Alexandre
     Jose Silvino Neto
     Pedro Henrique
