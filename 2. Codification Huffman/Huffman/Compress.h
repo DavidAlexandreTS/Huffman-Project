@@ -7,7 +7,7 @@
 #include "Hash.h"
 #include "Huffmantree.h"
 #include "Compress_Hash.h"
-
+#include "Base.h"
 /*Creates a header for the compressed file*/
 unsigned char* Create_header(int trash_size,int tree_size)
 {
@@ -18,24 +18,21 @@ unsigned char* Create_header(int trash_size,int tree_size)
 }
 
 /* Sets a new value to one byte and places it in the Hash*/
-void set(huffmanTree * bt,Comp_HT* ht,int height,unsigned int byte)
+void set(huffmanTree * bt,Comp_HT* ht,int height,unsigned int *byte)
 {
 	if(bt!=NULL)
 	{
 		if(isLeaf(bt))
 		{
-			if(*(unsigned char *)bt -> byte == '*' || *(unsigned char *)bt -> byte == 92)
-			{
-				byte = byte>>1;
-				height --;
-			}
-			another_put(ht,&byte,height,bt->byte);
+			byte[height]=2;
+			another_put(ht,byte,height,bt->byte);
 		}
-		set(bt -> left, ht, height + 1, byte << 1);
-		set(bt -> right, ht, height + 1,(byte << 1) + 1);
+		byte[height]=0;
+		set(bt -> left, ht, height + 1, byte);
+		byte[height]=1;
+		set(bt -> right, ht, height + 1,byte) ;
 	}
 }
-
 /*It receives the file to be compressed, collects the frequencies of each byte and places them in a Hash,
 then creates a Heap with the values of the frequencies and bytes.
 From the Heap a tree is formed, from this tree another Hash is created, with the new byte values.
@@ -102,48 +99,42 @@ void compress(char *name)
 	printHTinFile(arvore,saida);
 	puts("Got all the compressed bits for the archive");
 	rewind(entrada);
-	set(arvore, nometemp, 0, 0);
+	unsigned int *array = (unsigned int *)malloc(sizeof(unsigned int)*20);
+	set(arvore, nometemp, 0, array);
 	unsigned char Final_Byte = 0;
-	unsigned int bits;
+	unsigned int *bits;
 	unsigned char temp;
-	short bits_not_shifted = 8;
+	short bits_not_shifted = 7;
 	short bits_number;
 	short bits_int = (sizeof(unsigned short)*8);
 	puts("Starting the compression of archive");
 	printf("\n");
-
 	while(!feof(entrada))
 	{
 		byte = fgetc(entrada);
 		if(!feof(entrada))
 		{
 			bits_number = nometemp -> table[byte % MAX_HASH_SIZE] -> number_of_bits;
-			bits = *(unsigned int*)nometemp -> table[byte % MAX_HASH_SIZE] -> byte;
-			if(bits_not_shifted == 0) 
+			bits = nometemp->table[byte% MAX_HASH_SIZE]->byte;
+			for(i=0;i<bits_number;i++)
 			{
-				fputc(Final_Byte,saida);
-				bits_not_shifted = 8;
-				Final_Byte = 0;
-			}
-			if(bits_not_shifted >= bits_number)
-			{
-				bits_not_shifted = bits_not_shifted - bits_number;
-				Final_Byte |= (bits << (bits_not_shifted));
-			}else 
-			{
-				Final_Byte |= (bits >> (bits_number - bits_not_shifted));
-				fputc(Final_Byte,saida);
-				bits_not_shifted = 8 - (bits_number - bits_not_shifted);
-				Final_Byte = 0;
-				Final_Byte|= (bits << bits_not_shifted);
+				if(bits[i]==1) Final_Byte = set_bit(Final_Byte,bits_not_shifted);
+				if(bits_not_shifted==0) {
+					fputc(Final_Byte,saida);
+					Final_Byte =0;
+					bits_not_shifted =7;
+				}
+				else
+				bits_not_shifted--;
 			}
 		}
 	}
-
 	puts("Compressed the archive");
+	int trash = (bits_not_shifted+1)%8;
+	if(trash!=0){
 	fputc(Final_Byte,saida);
-	if(bits_not_shifted == 8) bits_not_shifted = 0;
-	int trash = bits_not_shifted;
+	}
+	printf("%d\n",trash);
 	rewind(saida);
 	puts("Creating header");
 	unsigned char *cabecalho;

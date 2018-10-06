@@ -6,21 +6,6 @@
 #include "Huffmantree.h"
 #include "Compress.h"
 
-/*Checks whether the bit is set at a given position and returns the result*/
-int is_bit_i_set(unsigned char c, int i)
-{
-	unsigned char mask = 1 << i;
-
-	return mask & c;
-}
-
-/*Puts a bit in a certain position of a byte*/
-unsigned short set_bit(unsigned short c, int i)
-{
-	unsigned short mask = 1 << i;
-
-	return c | mask;
-}
 
 /*Returns the size of the garbage in a file*/
 int Trash_Size(FILE *file_a)
@@ -122,7 +107,15 @@ void Decompress(FILE * enter,FILE * exit,huffmanTree *Tree,int trash,long long u
         i ++;
     }
 }
-
+void printHT(huffmanTree *ht)
+{
+    if(ht!=NULL)
+    {
+        printf("%c",*(unsigned char*)ht->byte);
+        printHT(ht->left);
+        printHT(ht->right);
+    }
+}
 /*Starts File Decompression by creating a new output file that will be the uncompressed file*/
 void Decompress_File(char * nome)
 {

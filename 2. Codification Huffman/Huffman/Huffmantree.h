@@ -17,6 +17,11 @@ struct _HUFFMANTREE
 	huffmanTree *right;
 };
 
+/*Checks if a node is a leaf*/
+bool isLeaf(huffmanTree *ht)
+{
+	return (ht -> left == NULL && ht -> right == NULL);
+}
 /*Creates a leaf, receives a byte and byte frequency and return a leaf*/
 huffmanTree* createNODE(void *byte, long long int frequency)
 {
@@ -35,6 +40,7 @@ void Tree_size(huffmanTree *ht,int *size)
 	if(ht!=NULL)
 	{
 		(*size) ++;
+		if(isLeaf(ht)&&(*(unsigned char *)ht->byte=='*')||*(unsigned char *)ht->byte=='\\') (*size)++;
 		Tree_size(ht -> left, size);
 		Tree_size(ht -> right, size);
 	}
@@ -56,12 +62,6 @@ huffmanTree* createTREE(void * byte, long long int frequency, huffmanTree *left,
 bool isHTempty(huffmanTree *ht)
 {
 	return (ht == NULL);
-}
-
-/*Checks if a node is a leaf*/
-bool isLeaf(huffmanTree *ht)
-{
-	return (ht -> left == NULL && ht -> right == NULL);
 }
 
 /*Go to the left in the Tree and return the left child*/
@@ -88,14 +88,29 @@ void* getBYTE(huffmanTree *ht)
 }
 
 /*Print the Tree in preorder in the file*/
-void printHTinFile (huffmanTree *ht,FILE *new)
+void printHTinFile (huffmanTree *ht,FILE *newfile)
 {
 	if (!isHTempty(ht))
-	{
-		fputc(*(unsigned char*)getBYTE(ht),new);
-		printHTinFile(ht -> left, new);
-		printHTinFile(ht -> right, new);
+	{	if(isLeaf(ht)&&(*(unsigned char *)ht->byte=='*'||*(unsigned char *)ht->byte=='\\'))fputc('\\',newfile);
+		fputc(*(unsigned char*)getBYTE(ht),newfile);
+		printHTinFile(ht -> left, newfile);
+		printHTinFile(ht -> right, newfile);
 	}
+}
+/*Checks whether the bit is set at a given position and returns the result*/
+int is_bit_i_set(unsigned char c, int i)
+{
+	unsigned char mask = 1 << i;
+
+	return mask & c;
+}
+
+/*Puts a bit in a certain position of a byte*/
+unsigned short set_bit(unsigned short c, int i)
+{
+	unsigned short mask = 1 << i;
+
+	return c | mask;
 }
 
 #endif

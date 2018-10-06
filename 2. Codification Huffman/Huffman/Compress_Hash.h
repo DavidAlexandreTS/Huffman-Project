@@ -9,7 +9,7 @@ typedef struct comp_hash_table Comp_HT;
 
 typedef struct comp_element
 {
-	void * byte;
+	int * byte;
 	int number_of_bits;
 }Comp_element;
 
@@ -31,12 +31,12 @@ Comp_HT* create_Comp_HT()
 }
 
 /*Puts a value in the Hash*/
-void another_put(Comp_HT *ht,void *byte ,int number,void *chave)
+void another_put(Comp_HT *ht,int *byte ,int number,void *chave)
 {
 	int key = (*(unsigned char*)chave) % MAX_HASH_SIZE;
 	ht -> table[key] = (Comp_element *)malloc(sizeof(Comp_element));
-	ht -> table[key] -> byte = malloc(sizeof(unsigned int));
-	*(unsigned int*)ht -> table[key] -> byte = *(unsigned int*)byte;
+	ht -> table[key] -> byte = malloc(sizeof(unsigned int)*number);
+	for(int i=0;i<number;i++)ht->table[key]->byte[i] = byte[i];
 	ht -> table[key] -> number_of_bits = number;
 }
 
