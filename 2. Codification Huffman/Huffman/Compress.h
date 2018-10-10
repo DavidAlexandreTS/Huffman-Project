@@ -7,7 +7,6 @@
 #include "Hash.h"
 #include "Huffmantree.h"
 #include "Compress_Hash.h"
-#include "Base.h"
 /*Creates a header for the compressed file*/
 unsigned char* Create_header(int trash_size,int tree_size)
 {
@@ -18,19 +17,16 @@ unsigned char* Create_header(int trash_size,int tree_size)
 }
 
 /* Sets a new value to one byte and places it in the Hash*/
-void set(huffmanTree * bt,Comp_HT* ht,int height,unsigned int *byte)
+void set(huffmanTree * bt,Comp_HT* ht,int height,unsigned int byte)
 {
 	if(bt!=NULL)
 	{
 		if(isLeaf(bt))
 		{
-			byte[height]=2;
-			another_put(ht,byte,height,bt->byte);
+			another_put(ht,&byte,height-1,bt->byte);
 		}
-		byte[height]=0;
-		set(bt -> left, ht, height + 1, byte);
-		byte[height]=1;
-		set(bt -> right, ht, height + 1,byte) ;
+		set(bt -> left, ht, height+1, byte<<1);
+		set(bt -> right, ht, height+1,(byte<<1)+1) ;
 	}
 }
 /*It receives the file to be compressed, collects the frequencies of each byte and places them in a Hash,
@@ -99,14 +95,13 @@ void compress(char *name)
 	printHTinFile(arvore,saida);
 	puts("Got all the compressed bits for the archive");
 	rewind(entrada);
-	unsigned int *array = (unsigned int *)malloc(sizeof(unsigned int)*20);
-	set(arvore, nometemp, 0, array);
+	//unsigned int *array = (unsigned int *)malloc(sizeof(unsigned int)*20);
+	set(arvore, nometemp, 0, 0);
 	unsigned char Final_Byte = 0;
-	unsigned int *bits;
+	unsigned int bits;
 	unsigned char temp;
 	short bits_not_shifted = 7;
 	short bits_number;
-	short bits_int = (sizeof(unsigned short)*8);
 	puts("Starting the compression of archive");
 	printf("\n");
 	while(!feof(entrada))
@@ -115,17 +110,18 @@ void compress(char *name)
 		if(!feof(entrada))
 		{
 			bits_number = nometemp -> table[byte % MAX_HASH_SIZE] -> number_of_bits;
-			bits = nometemp->table[byte% MAX_HASH_SIZE]->byte;
-			for(i=0;i<bits_number;i++)
+			bits = *(unsigned int *)nometemp->table[byte% MAX_HASH_SIZE]->byte;
+			while(bits_number>=0)
 			{
-				if(bits[i]==1) Final_Byte = set_bit(Final_Byte,bits_not_shifted);
+				if(is_bit_i_set(bits,bits_number)) Final_Byte = set_bit(Final_Byte,bits_not_shifted);
 				if(bits_not_shifted==0) {
 					fputc(Final_Byte,saida);
 					Final_Byte =0;
 					bits_not_shifted =7;
 				}
-				else
-				bits_not_shifted--;
+				else{
+				bits_not_shifted--;}
+				bits_number--;
 			}
 		}
 	}

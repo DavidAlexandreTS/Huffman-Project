@@ -98,9 +98,9 @@ void printHTinFile (huffmanTree *ht,FILE *newfile)
 	}
 }
 /*Checks whether the bit is set at a given position and returns the result*/
-int is_bit_i_set(unsigned char c, int i)
+int is_bit_i_set(unsigned int c, int i)
 {
-	unsigned char mask = 1 << i;
+	unsigned int mask = 1 << i;
 
 	return mask & c;
 }
