@@ -9,4 +9,4 @@ By:
     Pedro Henrique
     
     
- Ab2 of the discipline Data Structures of UFAL.
+ Implementation of a file compressor and decompressor
